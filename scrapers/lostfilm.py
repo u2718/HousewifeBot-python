@@ -6,7 +6,6 @@ from data.database import Show, Episode
 class Lostfilm:
     episodes_url = 'http://www.lostfilm.tv/browse.php?o={}'
     shows_url = 'http://www.lostfilm.tv/serials.php'
-    stop_id = 19081
     page_size = 15
 
     def load_shows(self):
@@ -20,8 +19,10 @@ class Lostfilm:
             shows.append(s)
         return shows
 
-    def load_episodes(self):
+    def load_episodes(self, last_loaded_site_id=19081):
         """:returns: {show_id: [episodes]}"""
+        if not last_loaded_site_id:
+            last_loaded_site_id = 19081
         page_number = 0
         shows = {}
         while True:
@@ -32,7 +33,7 @@ class Lostfilm:
             stop = False
             for i in range(len(episodes_details)):
                 site_id = int(re.search('id=(.+)', episodes_ids[i].attrib['href']).group(1))
-                if site_id == self.stop_id:
+                if site_id <= last_loaded_site_id:
                     stop = True
                     break
                 details = re.search('cat=(\d+).+s=(\d+)\..+e=(\d+)', episodes_details[i].attrib['href']).groups()

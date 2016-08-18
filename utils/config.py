@@ -7,6 +7,8 @@ class Config:
             config = ConfigParser()
             config.read('.config')
             self.connection_string = config['Database']['connection_string']
+            self.shows_update_interval = config.getfloat('Scraper', 'shows_update_interval')
+            self.episodes_update_interval = config.getfloat('Scraper', 'episodes_update_interval')
 
     _instance = None
 
