@@ -9,7 +9,7 @@ class Config:
             self.connection_string = config['Database']['connection_string']
             self.shows_update_interval = config.getfloat('Scraper', 'shows_update_interval')
             self.episodes_update_interval = config.getfloat('Scraper', 'episodes_update_interval')
-
+            self.token = config['Telegram']['token']
     _instance = None
 
     def __init__(self):
