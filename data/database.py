@@ -36,7 +36,7 @@ class User(Base):
     telegram_user_id = Column(Integer, nullable=False)
     first_name = Column(String)
     last_name = Column(String)
-    user_name = Column(String, nullable=False)
+    user_name = Column(String)
     created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     subscriptions = relationship('Subscription', backref=backref('user'))
     show_notifications = relationship('ShowNotification', backref=backref('user'))
