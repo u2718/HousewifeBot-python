@@ -2,6 +2,9 @@ import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import func
+from sqlalchemy.sql.elements import or_
+
 from utils.config import Config
 
 Base = declarative_base()
@@ -67,6 +70,13 @@ class database:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._session.commit()
+        self._session.expire_all()
+
+    @classmethod
+    def get_show(cls, db, title):
+        return db.query(Show).filter(
+            or_(func.lower(Show.title) == func.lower(title), func.lower(Show.original_title) == func.lower(title))
+        ).first()
 
     @classmethod
     def _create_session(cls):

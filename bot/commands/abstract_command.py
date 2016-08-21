@@ -4,7 +4,7 @@ from data.database import User
 
 
 class AbstractCommand:
-    def execute(self, bot, update):
+    def execute(self, bot, update, args=None):
         with database() as db:
             user = db.query(User).filter(User.telegram_user_id == update.message.from_user.id).first()
             if not user:
@@ -13,8 +13,8 @@ class AbstractCommand:
                             last_name=update.message.from_user.last_name,
                             user_name=update.message.from_user.username)
                 db.add(user)
-            self._execute(db, user, bot, update)
+            return self._execute(db, user, bot, update, args)
 
     @abstractmethod
-    def _execute(self, db, user, bot, update):
+    def _execute(self, db, user, bot, update, args):
         pass

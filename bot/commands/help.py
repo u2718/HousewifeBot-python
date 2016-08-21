@@ -2,7 +2,7 @@ from bot.commands.abstract_command import AbstractCommand
 
 
 class HelpCommand(AbstractCommand):
-    def _execute(self, db, user, bot, update):
+    def _execute(self, db, user, bot, update, args):
         help_template = 'Список команд: \n' \
                         '/shows - вывести список всех сериалов \n' \
                         '/subscribe - подписаться на сериал \n' \
