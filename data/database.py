@@ -69,8 +69,18 @@ class database:
         return self._session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._session.commit()
-        self._session.expire_all()
+        database.close(self._session)
+
+    def get(self):
+        return self._session
+
+    def close(self):
+        database.close(self._session)
+
+    @staticmethod
+    def close(session):
+        session.commit()
+        session.expire_all()
 
     @classmethod
     def get_show(cls, db, title):

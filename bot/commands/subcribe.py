@@ -14,11 +14,18 @@ class SubscribeCommand(AbstractCommand):
             return SubscribeCommand.GET_TITLE
         show_title = ' '.join(args)
         self._subscribe(bot, update, show_title)
-        return ConversationHandler.END
+        return self.__handled()
 
     def get_title(self, bot, update):
         self._subscribe(bot, update, update.message.text)
+        return self.__handled()
+
+    def __handled(self):
+        database.close(self.db)
         return ConversationHandler.END
+
+    def _handled(self, db):
+        pass
 
     def _subscribe(self, bot, update, title):
         show = database.get_show(self.db, title)

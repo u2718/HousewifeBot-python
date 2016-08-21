@@ -5,6 +5,7 @@ from bot.commands.shows import ShowsCommand
 from bot.commands.start import StartCommand
 from bot.commands.subcribe import SubscribeCommand
 from bot.commands.unknown import UnknownCommand
+from bot.commands.unsubscribe import UnsubscribeCommand
 from utils.config import Config
 
 
@@ -25,10 +26,20 @@ class Bot:
             },
             fallbacks=[]
         )
+        unsubscribe_command = UnsubscribeCommand()
+        unsubscribe_handler = ConversationHandler(
+            entry_points=[CommandHandler('unsubscribe', unsubscribe_command.execute, pass_args=True)],
+            states={
+                UnsubscribeCommand.GET_TITLE: [MessageHandler([], unsubscribe_command.get_title)]
+            },
+            fallbacks=[]
+        )
+
         self.dispatcher.add_handler(shows_handler)
         self.dispatcher.add_handler(start_handler)
         self.dispatcher.add_handler(help_handler)
         self.dispatcher.add_handler(subscribe_handler)
+        self.dispatcher.add_handler(unsubscribe_handler)
         self.dispatcher.add_handler(unknown_handler)
 
     def start_polling(self):
