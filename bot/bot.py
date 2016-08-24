@@ -1,6 +1,7 @@
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, ConversationHandler, CallbackQueryHandler
 from bot.commands.help import HelpCommand
+from bot.commands.my_subscriptions import MySubscriptionsCommand
 from bot.commands.shows import ShowsCommand
 from bot.commands.start import StartCommand
 from bot.commands.subcribe import SubscribeCommand
@@ -49,6 +50,9 @@ class Bot:
         unsubscribe_all_handler = CommandHandler('unsubscribe_all', unsubscribe_all_command.execute)
         self.dispatcher.add_handler(CallbackQueryHandler(unsubscribe_all_command.unsubscribe_all))
         self.dispatcher.add_handler(unsubscribe_all_handler)
+
+        my_subscriptions_handler = CommandHandler('my_subscriptions', MySubscriptionsCommand().execute)
+        self.dispatcher.add_handler(my_subscriptions_handler)
 
         unknown_handler = MessageHandler([], UnknownCommand().execute)
         self.dispatcher.add_handler(unknown_handler)
