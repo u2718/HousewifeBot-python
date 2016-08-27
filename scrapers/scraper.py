@@ -8,8 +8,10 @@ from sqlalchemy.sql import func
 
 
 class Scraper:
-    def __init__(self):
+    def __init__(self, shows_updated_callback=None, episodes_updated_callback=None):
         self._scraper = Lostfilm()
+        self._shows_updated_callback = shows_updated_callback
+        self._episodes_updated_callback = episodes_updated_callback
 
     def start(self):
         def update(func, interval):
@@ -21,12 +23,17 @@ class Scraper:
 
     def _update_shows(self, scraper):
         shows = scraper.load_shows()
+        updated = False
         with database() as db:
             for show in shows:
                 if not db.query(exists().where(Show.site_id == show.site_id)).scalar():
+                    updated = True
                     db.add(show)
+        if updated and self._shows_updated_callback:
+            self._shows_updated_callback()
 
     def _update_episodes(self, scraper):
+        updated = False
         with database() as db:
             last_loaded_site_id = db.query(func.max(Episode.site_id)).one()[0]
             episodes = scraper.load_episodes(last_loaded_site_id)
@@ -41,3 +48,6 @@ class Scraper:
                     if not db.query(exists().where(Episode.site_id == episode.site_id)).scalar():
                         episode.show_id = show.id
                         db.add(episode)
+                        updated = True
+        if updated and self._episodes_updated_callback:
+            self._episodes_updated_callback()

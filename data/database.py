@@ -31,6 +31,7 @@ class Episode(Base):
     episode_number = Column(Integer)
     show_id = Column(Integer, ForeignKey('show.id'), nullable=False)
     created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    notifications = relationship('Notification', backref=backref('episode'))
 
 
 class User(Base):
@@ -43,6 +44,7 @@ class User(Base):
     created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
     subscriptions = relationship('Subscription', backref=backref('user'))
     show_notifications = relationship('ShowNotification', backref=backref('user'))
+    notifications = relationship('Notification', backref=backref('user'))
 
 
 class Subscription(Base):
@@ -58,6 +60,14 @@ class ShowNotification(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     show_id = Column(Integer, ForeignKey('show.id'), nullable=False)
+    notified = Column(Boolean, nullable=False, default=False)
+
+
+class Notification(Base):
+    __tablename__ = 'notification'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    episode_id = Column(Integer, ForeignKey('episode.id'), nullable=False)
     notified = Column(Boolean, nullable=False, default=False)
 
 
