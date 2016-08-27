@@ -1,11 +1,15 @@
-from abc import abstractmethod
+import logging
+
 from data import database
 from data.database import User
+
+logger = logging.getLogger('logger')
 
 
 class AbstractCommand:
     def execute(self, bot, update, args=None):
         db = database()
+        logger.info('Received command %s from user %s' % (self.__class__.__name__, update.message.from_user.id))
         try:
             user = db.get().query(User).filter(User.telegram_user_id == update.message.from_user.id).first()
             if not user:
@@ -18,9 +22,8 @@ class AbstractCommand:
         finally:
             self._handled(db)
 
-    @abstractmethod
     def _execute(self, db, user, bot, update, args):
         pass
 
     def _handled(self, db):
-        db.close()
+        database.close(db.get())

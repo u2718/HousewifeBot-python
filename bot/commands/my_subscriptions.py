@@ -10,10 +10,8 @@ class MySubscriptionsCommand(AbstractCommand):
             return
 
         subscriptions = ['%s (%s)' % (s.show.title, s.show.original_title) for s in user.subscriptions]
-        if len(subscriptions) > MySubscriptionsCommand.__MAX_ROWS__:
-            messages = (subscriptions[:len(subscriptions) // 2], subscriptions[len(subscriptions) // 2:])
-        else:
-            messages = (subscriptions,)
+        messages = [subscriptions[i:i + MySubscriptionsCommand.__MAX_ROWS__] for i in
+                    range(0, len(subscriptions), MySubscriptionsCommand.__MAX_ROWS__)]
         for row in messages:
             result = '\n'.join(row)
             bot.send_message(chat_id=update.message.chat_id, text=result)

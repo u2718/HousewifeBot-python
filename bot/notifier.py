@@ -1,7 +1,11 @@
+import logging
+
 from sqlalchemy.sql.elements import and_
 from sqlalchemy import exists
 from data import database
 from data.database import User, Show, ShowNotification, Notification, Subscription, Episode
+
+logger = logging.getLogger('logger')
 
 
 class Notifier:
@@ -19,6 +23,7 @@ class Notifier:
             for row in query:
                 notification = ShowNotification(user=row.User, show=row.Show, notified=False)
                 db.add(notification)
+                logger.info('Notification created (user: %s, show: %s )' % (row.User.telegram_user_id, row.Show.title))
         self._send_shows_notifications()
 
     def create_episodes_notifications(self):
@@ -36,6 +41,8 @@ class Notifier:
             for row in query:
                 notification = Notification(user=row.User, episode=row.Episode, notified=False)
                 db.add(notification)
+                logger.info(
+                    'Notification created (user: %s, episode: %s )' % (row.User.telegram_user_id, row.Episode.title))
         self._send_episodes_notifications()
 
     def _send_shows_notifications(self):
