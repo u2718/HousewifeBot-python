@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import logging
 from bot.bot import Bot
 from bot.notifier import Notifier
