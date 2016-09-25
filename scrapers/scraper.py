@@ -5,6 +5,9 @@ from scrapers.lostfilm import Lostfilm
 from utils.config import Config
 from sqlalchemy import exists
 from sqlalchemy.sql import func
+import logging
+
+logger = logging.getLogger('logger')
 
 
 class Scraper:
@@ -15,14 +18,21 @@ class Scraper:
 
     def start(self):
         def update(func, interval):
-            func(self._scraper)
+            try:
+                func(self._scraper)
+            except Exception as e:
+                logger.error('An unhandled error occurred: ' + str(e))
             threading.Timer(interval, update, kwargs={'func': func, 'interval': interval}).start()
 
         update(self._update_shows, Config().shows_update_interval)
         update(self._update_episodes, Config().episodes_update_interval)
 
     def _update_shows(self, scraper):
-        shows = scraper.load_shows()
+        try:
+            shows = scraper.load_shows()
+        except Exception as e:
+            logger.error('An error has occurred while updating shows: ' + str(e))
+            return
         updated = False
         with database() as db:
             for show in shows:
@@ -36,7 +46,11 @@ class Scraper:
         updated = False
         with database() as db:
             last_loaded_site_id = db.query(func.max(Episode.site_id)).one()[0]
-            episodes = scraper.load_episodes(last_loaded_site_id)
+            try:
+                episodes = scraper.load_episodes(last_loaded_site_id)
+            except Exception as e:
+                logger.error('An error has occurred while updating episodes: ' + str(e))
+                return
             for show_site_id in episodes:
                 show = db.query(Show).filter(Show.site_id == show_site_id).first()
                 if not show:
