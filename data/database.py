@@ -16,7 +16,7 @@ class Show(Base):
     site_id = Column(Integer, nullable=False)
     title = Column(String, nullable=False)
     original_title = Column(String)
-    created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    created_date = Column(DateTime, nullable=False, default=func.now())
     episodes = relationship('Episode', backref=backref('show'))
     subscriptions = relationship('Subscription', backref=backref('show'))
     show_notifications = relationship('ShowNotification', backref=backref('show'))
@@ -30,7 +30,7 @@ class Episode(Base):
     season_number = Column(Integer)
     episode_number = Column(Integer)
     show_id = Column(Integer, ForeignKey('show.id'), nullable=False)
-    created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    created_date = Column(DateTime, nullable=False, default=func.now())
     notifications = relationship('Notification', backref=backref('episode'))
 
 
@@ -41,7 +41,7 @@ class User(Base):
     first_name = Column(String)
     last_name = Column(String)
     user_name = Column(String)
-    created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    created_date = Column(DateTime, nullable=False, default=func.now())
     subscriptions = relationship('Subscription', backref=backref('user'))
     show_notifications = relationship('ShowNotification', backref=backref('user'))
     notifications = relationship('Notification', backref=backref('user'))
@@ -52,7 +52,7 @@ class Subscription(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     show_id = Column(Integer, ForeignKey('show.id'), nullable=False)
-    created_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow())
+    created_date = Column(DateTime, nullable=False, default=func.now())
 
 
 class ShowNotification(Base):
