@@ -36,7 +36,7 @@ class Lostfilm:
                 if site_id <= last_loaded_site_id:
                     stop = True
                     break
-                details = re.search('cat=(\d+).+s=(\d+)\..+e=(\d+)', episodes_details[i].attrib['href']).groups()
+                details = re.search('cat=[^\d]*(\d+).+s=(\d+)\..+e=(\d+)', episodes_details[i].attrib['href']).groups()
                 show_site_id, season_number, episode_number = int(details[0]), int(details[1]), int(details[2])
                 e = Episode(site_id=site_id,
                             title=episodes_titles[i].text,
