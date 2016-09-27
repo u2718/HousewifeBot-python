@@ -52,10 +52,14 @@ class Notifier:
                 .join(Show, Show.id == ShowNotification.show_id) \
                 .filter(~ShowNotification.notified)
             for notification in query:
-                self.bot.send_message(
-                    chat_id=notification.User.telegram_user_id,
-                    text='Новый сериал: %s (%s)' % (notification.Show.title, notification.Show.original_title))
-                notification.ShowNotification.notified = True
+                chat_id = notification.User.telegram_user_id
+                try:
+                    self.bot.send_message(
+                        chat_id=chat_id,
+                        text='Новый сериал: %s (%s)' % (notification.Show.title, notification.Show.original_title))
+                    notification.ShowNotification.notified = True
+                except Exception as e:
+                    logger.error('An error has occurred while sending notification to %s: %s' % (chat_id, str(e)))
 
     def _send_episodes_notifications(self):
         with database() as db:
@@ -65,8 +69,12 @@ class Notifier:
                 .join(Show, Show.id == Episode.show_id) \
                 .filter(~Notification.notified)
             for notification in query:
-                self.bot.send_message(
-                    chat_id=notification.User.telegram_user_id,
-                    text='%s: %s' % (notification.Show.title, notification.Episode.title)
-                )
-                notification.Notification.notified = True
+                chat_id = notification.User.telegram_user_id
+                try:
+                    self.bot.send_message(
+                        chat_id=chat_id,
+                        text='%s: %s' % (notification.Show.title, notification.Episode.title)
+                    )
+                    notification.Notification.notified = True
+                except Exception as e:
+                    logger.error('An error has occurred while sending notification to %s: %s' % (chat_id, str(e)))
