@@ -12,6 +12,7 @@ class Config:
             self.token = config['Telegram']['token']
             self.lostfilm_login = config['Lostfilm']['login']
             self.lostfilm_password = config['Lostfilm']['password']
+            self.torrents_path = config['Torrents']['path']
 
     _instance = None
 
