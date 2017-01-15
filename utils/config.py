@@ -10,6 +10,9 @@ class Config:
             self.shows_update_interval = config.getfloat('Scraper', 'shows_update_interval')
             self.episodes_update_interval = config.getfloat('Scraper', 'episodes_update_interval')
             self.token = config['Telegram']['token']
+            self.lostfilm_login = config['Lostfilm']['login']
+            self.lostfilm_password = config['Lostfilm']['password']
+
     _instance = None
 
     def __init__(self):
