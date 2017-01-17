@@ -1,9 +1,11 @@
 import logging
-
+from operator import attrgetter
+from telegram.chataction import ChatAction
 from sqlalchemy.sql.elements import and_
 from sqlalchemy import exists
 from data import database
 from data.database import User, Show, ShowNotification, Notification, Subscription, Episode
+from downloaders.lostfilm import Lostfilm
 
 logger = logging.getLogger('logger')
 
@@ -11,6 +13,7 @@ logger = logging.getLogger('logger')
 class Notifier:
     def __init__(self, bot):
         self.bot = bot
+        self.torrent_downloader = Lostfilm()
 
     def create_shows_notifications(self):
         with database() as db:
@@ -76,5 +79,24 @@ class Notifier:
                         text='%s: %s' % (notification.Show.title, notification.Episode.title)
                     )
                     notification.Notification.notified = True
+                    if notification.User.download_torrents:
+                        self.__send_torrent(chat_id, notification)
                 except Exception as e:
                     logger.error('An error has occurred while sending notification to %s: %s' % (chat_id, str(e)))
+
+    def __send_torrent(self, chat_id, notification):
+        if notification.Episode.file_id is None:
+            torrents = self.torrent_downloader.list(notification.Show.site_id, notification.Episode.season_number,
+                                                    notification.Episode.episode_number)
+            torrent = max(torrents, key=attrgetter('size'))
+            path = torrent.download()
+            document = open(path, 'rb')
+            file_id = self.__send_document(chat_id, document)
+            notification.Episode.file_id = file_id
+        else:
+            self.__send_document(chat_id, notification.Episode.file_id)
+
+    def __send_document(self, chat_id, document):
+        self.bot.send_chat_action(chat_id, ChatAction.UPLOAD_DOCUMENT)
+        msg = self.bot.send_document(chat_id, document)
+        return msg.document.file_id

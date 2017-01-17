@@ -1,4 +1,3 @@
-import datetime
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -32,6 +31,7 @@ class Episode(Base):
     show_id = Column(Integer, ForeignKey('show.id'), nullable=False)
     created_date = Column(DateTime, nullable=False, default=func.now())
     notifications = relationship('Notification', backref=backref('episode'))
+    file_id = Column(String)
 
 
 class User(Base):
@@ -45,6 +45,7 @@ class User(Base):
     subscriptions = relationship('Subscription', backref=backref('user'))
     show_notifications = relationship('ShowNotification', backref=backref('user'))
     notifications = relationship('Notification', backref=backref('user'))
+    download_torrents = Column(Boolean)
 
 
 class Subscription(Base):
