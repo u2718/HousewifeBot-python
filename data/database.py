@@ -24,7 +24,7 @@ class Show(Base):
 class Episode(Base):
     __tablename__ = 'episode'
     id = Column(Integer, primary_key=True)
-    site_id = Column(Integer, nullable=False)
+    site_id = Column(Integer, nullable=True)
     title = Column(String, nullable=False)
     season_number = Column(Integer)
     episode_number = Column(Integer)

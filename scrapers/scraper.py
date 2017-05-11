@@ -5,6 +5,7 @@ from scrapers.lostfilm import Lostfilm
 from utils.config import Config
 from sqlalchemy import exists
 from sqlalchemy.sql import func
+from sqlalchemy.sql.elements import and_
 import logging
 
 logger = logging.getLogger('logger')
@@ -45,9 +46,12 @@ class Scraper:
     def _update_episodes(self, scraper):
         updated = False
         with database() as db:
-            last_loaded_site_id = db.query(func.max(Episode.site_id)).one()[0]
+            #last_loaded_site_id = db.query(func.max(Episode.id)).one()[0]
+            subqry = db.query(func.max(Episode.id))
+            last_episode = db.query(Episode).join(Show, Show.id == Episode.show_id).filter(Episode.id == subqry)[0]
+            #last_episode = db.query(Episode).where(Episode.id == func.max(Episode.id)).one()[0]
             try:
-                episodes = scraper.load_episodes(last_loaded_site_id)
+                episodes = scraper.load_episodes((last_episode.show.site_id, last_episode.season_number, last_episode.episode_number))
             except Exception as e:
                 logger.error('An error has occurred while updating episodes: ' + str(e))
                 return
@@ -59,7 +63,11 @@ class Scraper:
                 if not show:
                     raise Exception('show (site_id=%s) not found' % show_site_id)
                 for episode in episodes[show_site_id]:
-                    if not db.query(exists().where(Episode.site_id == episode.site_id)).scalar():
+                    query = db.query(Episode, Show).join(Show, Show.id == Episode.show_id).filter(
+                        and_(Show.site_id == episode.show_id,
+                             Episode.episode_number == episode.episode_number,
+                             Episode.season_number == episode.season_number)).count()
+                    if not query:
                         episode.show_id = show.id
                         db.add(episode)
                         updated = True
