@@ -16,7 +16,8 @@ class AbstractCommand:
                 user = User(telegram_user_id=update.message.from_user.id,
                             first_name=update.message.from_user.first_name,
                             last_name=update.message.from_user.last_name,
-                            user_name=update.message.from_user.username)
+                            user_name=update.message.from_user.username,
+                            download_torrents=False)
                 db.get().add(user)
             return self._execute(db.get(), user, bot, update, args)
         finally:
